@@ -3,7 +3,6 @@ import random
 import spacy
 import json
 
-from tool.names_matcher import NamesMatcher, get_complete_data_about_novel, get_data_about_novel
 from tool.file_and_directory_management import write_text_to_file, read_file
 from tool.wiki_scanner import get_descriptions_of_characters, get_list_of_characters
 

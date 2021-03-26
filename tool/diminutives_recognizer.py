@@ -3,7 +3,7 @@ import csv
 import os
 # https://github.com/carltonnorthern/nickname-and-diminutive-names-lookup/blob/master/names.csv
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-DIMINUTIVES_FILE = ROOT_DIR + "\\data\\diminutives.csv"
+DIMINUTIVES_FILE = ROOT_DIR + "\\additional_resources\\diminutives.csv"
 
 
 def create_diminutives_dictionary():
