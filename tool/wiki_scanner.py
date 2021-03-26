@@ -1,9 +1,6 @@
 import requests
 from bs4 import BeautifulSoup, Tag
-from file_and_directory_management import open_path
-import os
-
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+from tool.file_and_directory_management import open_path
 
 
 def scanner(title, type, dir, filename):
@@ -12,7 +9,7 @@ def scanner(title, type, dir, filename):
     list = []
 
     if resp.status_code == 200:
-        path = ROOT_DIR + "\\data\\" + dir + "\\" + filename
+        path = dir + "\\" + filename
         file = open_path(path, "a")
 
         soup = BeautifulSoup(resp.text, 'html.parser')
@@ -52,12 +49,12 @@ def scanner(title, type, dir, filename):
     return list
 
 
-def get_list_of_characters(title):
-    return scanner(title, "b", "lists_of_characters", title)
+def get_list_of_characters(list_dir_path, title):
+    return scanner(title, "b", list_dir_path, title)
 
 
-def get_descriptions_of_characters(title):
-    return scanner(title, "li", "descriptions_of_characters", title)
+def get_descriptions_of_characters(descriptions_dir_path, title):
+    return scanner(title, "li", descriptions_dir_path, title)
 
 
 def standarize_name_of_character(name):

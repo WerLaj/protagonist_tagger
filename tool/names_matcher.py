@@ -7,12 +7,12 @@ from fuzzywuzzy import fuzz
 import spacy
 from spacy import displacy, gold
 from spacy.tokens import Span
-from file_and_directory_management import read_file_to_list, write_list_to_file, read_file, write_text_to_file, read_sentences_from_file
+from tool.file_and_directory_management import read_file_to_list, write_list_to_file, read_file, write_text_to_file, read_sentences_from_file
 import os
 import numpy as np
 from termcolor import colored
-from gender_checker import get_name_gender, get_personal_titles, create_titles_and_gender_dictionary
-from diminutives_recognizer import get_names_from_diminutive
+from tool.gender_checker import get_name_gender, get_personal_titles, create_titles_and_gender_dictionary
+from tool.diminutives_recognizer import get_names_from_diminutive
 
 import itertools
 
