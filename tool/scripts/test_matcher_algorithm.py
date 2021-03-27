@@ -55,6 +55,15 @@ def run_matcher(titles_path, model_path, characters_lists_dir_path, texts_dir_pa
     print(tabulate(matches_table, tablefmt='orgtbl'))
 
 
+# titles_path - path to .txt file with titles of novels from which the sampled data are to be generated (titles should
+#       not contain any special characters and spaces should be replaced with "_", for example "Pride_andPrejudice")
+# model_path - path to a fine-tuned nlp spacy model to be loaded and used during named entity recognition process; if
+#       not the standard, pre-trained NER model is used
+# characters_lists_dir_path - directory of files containing lists of characters from corresponding novels (names of
+#       files should be the same as titles on the list from titles_path)
+# texts_dir_path - directory of files containing texts from corresponding novels to be annotated (names of
+#       files should be the same as titles on the list from titles_path)
+# results_dir - path to the directory where the results of annotation process should be stored
 def main(titles_path, model_path, characters_lists_dir_path, texts_dir_path, results_dir):
     run_matcher(titles_path, model_path, characters_lists_dir_path, texts_dir_path, results_dir)
 
