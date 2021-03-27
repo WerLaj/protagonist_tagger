@@ -1,8 +1,6 @@
-# Protagonists' Catcher in Novels -- A Dataset and A Method
-
 ![alt text here](protagonist_tagger_poster.png)
 
-> Follow your heart.
+# Protagonists' Catcher in Novels -- A Dataset and A Method
 Semantic annotation of long texts, such as novels, remains an open challenge in the field of Semantic Web (SW) and Natural Language Processing (NLP). Recognizing and identifying literary characters in full-text novels is the first step for a more detailed literary text analysis. This research investigates the problem of ontology population, i.e. recognizing people (especially main characters) in novels and annotating them. We prepared a tool -- **protagonistTagger** -- for this annotation and a dataset to test it. 
 
 Our process of identifying literary characters in a text, implemented in **protagonistTagger**, comprises two stages: (1) named entity recognition (NER) of persons, (2) matching method of each recognized person with the literary character's full name associated with it, based on **approximate text matching**. 
@@ -53,3 +51,6 @@ Detailed information about input arguments and functionalities implemented in ea
 Arguments should be separated with single space and given without any quotation marks. For example:
 
 `$ python -m tool.scripts.generate_test_data C:\users\john_smith\desktop\titles.txt  C:\users\john_smith\desktop\novels_texts\ 20  C:\users\john_smith\desktop\my_results\`
+
+## More information
+More information about the prepared corpus, data sets and tool can be found in the presentation and the paper that can be found in this repository.
