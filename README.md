@@ -40,3 +40,12 @@ In order to make the tool easy to use, there are several scripts offering most i
 + *prepare_training_set_with_not_recognized_named_entities_for_ner_fine_tuning.py* - given sets of named entities of category *person* not recognized by standard NER model and full plain tests of novels, it creates training set for NER model fine-tuning by extracting from novels and semi-automatically annotating with general tag PERSON sentences with not recognized named entites
 + *test_matcher_algorithm.py* - given list of literary characters, novels texts (either full or only some extracted sentences), fine-tuned NER model and precision (for approximate string matching), it annotates the given text with names of literary characters form the list
 + *test_ner_model.py* - given, NER model, testing sets and gold standard annotated with full names of literary characters, it generalizes the gold standard (by replacing character-specific annotation with general tag PERSON) and annotates the testing set with general tag PERSON using given NER model; returned annotated sets are prepared to be compared by computing metrics; 
+
+
+Detailed information about input arguments and functionalities implemented in each scipts canbe found in comments in corresponding python files. Each sript can be run from terminal (from \protagonist_tagger directory) according to the same schema:
+
+`$ python -m tool.scripts.<script_name> arg1 arg2 arg3 arg4`
+
+Arguments should be separated with single space and given without any quotation marks. For example:
+
+`$ python -m tool.scripts.generate_test_data C:\users\john_smith\desktop\titles.txt  C:\users\john_smith\desktop\novels_texts\ 20  C:\users\john_smith\desktop\my_results\`
