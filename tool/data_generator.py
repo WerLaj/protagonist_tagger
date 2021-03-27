@@ -2,6 +2,7 @@ import os
 import random
 import spacy
 import json
+import errno
 
 from tool.file_and_directory_management import write_text_to_file, read_file
 from tool.wiki_scanner import get_descriptions_of_characters, get_list_of_characters
@@ -67,7 +68,16 @@ def spacy_format_to_json(path, data, title):
         dict = {"content": sentence[0], "entities": sentence[1]['entities']}
         json_data.append(dict)
 
-    with open(path + title, 'w') as result:
+    path = path + title + ".json"
+
+    if not os.path.exists(os.path.dirname(path)):
+        try:
+            os.makedirs(os.path.dirname(path))
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                raise
+
+    with open(path, 'w+') as result:
         json.dump(json_data, result)
 
 

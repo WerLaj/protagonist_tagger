@@ -1,9 +1,10 @@
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
-from tool.data_generator import data_from_json
 import tabulate
-from tool.file_and_directory_management import read_file_to_list
 import pickle
+
+from tool.file_and_directory_management import read_file_to_list
+from tool.data_generator import data_from_json
 
 
 def save_to_pickle(filename, data, stats_path):
