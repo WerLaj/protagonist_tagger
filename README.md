@@ -30,3 +30,13 @@ This repository comprises three main parts:
 	+ two training sets for fine-tuning NER model
 	+ fine-tuned NER model to be reused or fine-tuned further
 3. **ProtagonistTagger** tool itself with several scripts that make it extremely easy to reuse it.
+
+## How to use the protagonistTagger
+In order to make the tool easy to use, there are several scripts offering most important functionalities. The scripts are located in *protagonist_tagger/tool/scripts* and they can be simply lauched from terminal with a set of necessary arguments. The following scripts are available:
++ *compute_metrics.py*  - given testing set annotated only by fine-tuned NER model or by protagonistTagger and a gold standard, it computes metrics such as precision, recall, F-measure
++ *fine_tune_ner_model.py* - given training set(s), it fine-tune a predefined spacy NER model and saves it to a given directory to be reused
++ *generate_test_data.py* - given full plain texts of novels, it extracts sentences contiaing named entites of category *person*  in order to create testing set
++ *prepare_training_set_with_common_names_for_ner_fine_tuning.py* - given a set of common English names, lists of literary characters and full plain texts of novels, it creates training set for fine-tuning NER model by injecting to sentences extracted from novels (and containing at least one named entity of category *person*) common English names
++ *prepare_training_set_with_not_recognized_named_entities_for_ner_fine_tuning.py* - given sets of named entities of category *person* not recognized by standard NER model and full plain tests of novels, it creates training set for NER model fine-tuning by extracting from novels and semi-automatically annotating with general tag PERSON sentences with not recognized named entites
++ *test_matcher_algorithm.py* - given list of literary characters, novels texts (either full or only some extracted sentences), fine-tuned NER model and precision (for approximate string matching), it annotates the given text with names of literary characters form the list
++ *test_ner_model.py* - given, NER model, testing sets and gold standard annotated with full names of literary characters, it generalizes the gold standard (by replacing character-specific annotation with general tag PERSON) and annotates the testing set with general tag PERSON using given NER model; returned annotated sets are prepared to be compared by computing metrics; 
