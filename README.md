@@ -17,3 +17,16 @@ The process of creating the corpus of annotated novels and the **protagonistTagg
 - The annotations did by the **matching algorithm** are accessed according to their accuracy and correctness.
 
 The **protagonistTagger** (fine-tuned NER + matching algorithm) is used to annotate more novels in order to create the corpus of annotated novels. 
+
+## What can you find here
+This repository comprises three main parts:
+1.  corpus of thirteen novels annotated with full names of protagonists 
+2. data set containing: 
+    + the following  information about each novel:
+		+ full plain text of novel
+		+ list of literary characters
+		+ set of named entities of category person not recognized by standard NER model
+	+ testing sets (small and large) along with gold standards annotated with general tag PERSON and full names of literary characters; additionaly both testing sets are annotated using fine-tuned NER model an **protagonistTagger** (see *protagonist_tagger/data/results*)
+	+ two training sets for fine-tuning NER model
+	+ fine-tuned NER model to be reused or fine-tuned further
+3. **ProtagonistTagger** tool itself with several scripts that make it extremely easy to reuse it.
