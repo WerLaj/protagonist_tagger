@@ -8,7 +8,7 @@ The performance of **protagonistTagger** in thirteen full-text novels shows that
 Exemplary annotations performed by **protagonistTagger**:
 >"Her disappointment in **Charlotte --Charlotte Lucas--** made her turn with fonder regard to her sister, of whose rectitude and delicacy she was sure her opinion could never be shaken, and for whose happiness she grew daily more anxious, as **Bingley --Charles Bingley--** had now been gone a week and nothing more was heard of his return. **Jane --Jane Bennet--** had sent **Caroline --Caroline Bingley--** an early answer to her letter and was counting the days till she might reasonably hope to hear again. The promised letter of thanks from **Mr. Collins --Mr William Collins--** arrived on Tuesday, addressed to their father, and written with all the solemnity of gratitude which a twelvemonth’s abode in the family might have prompted."  
 
-# General Project Workflow
+## General Project Workflow
 The process of creating the corpus of annotated novels and the **protagonistTagger** tool comprises several stages:
 - Gathering an initial corpus with plain novels' texts without annotations. 
 - Creating a list of full names of all protagonists for each novel in the initial corpus. These names are the predefined tags that will be used in further steps for annotations.
