@@ -2,29 +2,34 @@ import os
 import random
 import spacy
 import json
+import errno
 
-from names_matcher import NamesMatcher, get_complete_data_about_novel, get_data_about_novel
-from file_and_directory_management import write_text_to_file
-from wiki_scanner import get_descriptions_of_characters, get_list_of_characters
+from tool.file_and_directory_management import write_text_to_file, read_file
+from tool.wiki_scanner import get_descriptions_of_characters, get_list_of_characters
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
+# extract lists of characters for novels from corresponding articles on Wikipedia (titles should not contain
+#   any special characters and spaces should be replaced with "_", for example "Pride_andPrejudice")
 def generate_lists_of_characters(titles):
     for title in titles:
         get_list_of_characters(title)
 
 
+# extract description of characters for novels from corresponding articles on Wikipedia (titles should not contain
+#   any special characters and spaces should be replaced with "_", for example "Pride_andPrejudice")
 def generate_descriptions_of_characters(titles):
     for title in titles:
         get_descriptions_of_characters(title)
 
 
-def generate_sample_test_data(titles, number_of_sentences):
+# generate sample test data from full novels texts
+def generate_sample_test_data(titles, number_of_sentences, novels_texts_dir_path, generated_data_dir):
     nlp = spacy.load("en_core_web_sm")
 
     for title in titles:
-        _, novel_text = get_complete_data_about_novel(title)
+        novel_text = read_file(novels_texts_dir_path + title)
         doc = nlp(novel_text)
         potential_sentences = []
         people = set()
@@ -40,23 +45,7 @@ def generate_sample_test_data(titles, number_of_sentences):
         selected_sentences = [sent for sent in random.sample(potential_sentences, k=number_of_sentences)]
         test_sample = "\n".join(selected_sentences)
 
-        write_text_to_file(ROOT_DIR + "\\data\\testing_set\\" + title, test_sample)
-
-
-def create_ner_person_lists(titles):
-    nlp = spacy.load("en_core_web_sm")
-
-    for title in titles:
-        _, novel_text = get_complete_data_about_novel(title)
-        doc = nlp(novel_text)
-        people = set()
-        for ent in doc.ents:
-            if ent.label_ == "PERSON":
-                people.add(ent.text)
-
-        people_list = "\n".join(people)
-
-        write_text_to_file(ROOT_DIR + "\\data\\ner_person\\" + title, people_list)
+        write_text_to_file(generated_data_dir + title, test_sample)
 
 
 def json_to_spacy_train_data(path):
@@ -71,7 +60,7 @@ def json_to_spacy_train_data(path):
     return train_data
 
 
-def spacy_format_to_json(data, title):
+def spacy_format_to_json(path, data, title):
     eval_data = list(eval(data))
     json_data = []
 
@@ -79,7 +68,16 @@ def spacy_format_to_json(data, title):
         dict = {"content": sentence[0], "entities": sentence[1]['entities']}
         json_data.append(dict)
 
-    with open(ROOT_DIR + "\\data\\manually_annotated\\general_tag_PERSON\\" + title, 'w') as result:
+    path = path + title + ".json"
+
+    if not os.path.exists(os.path.dirname(path)):
+        try:
+            os.makedirs(os.path.dirname(path))
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                raise
+
+    with open(path, 'w+') as result:
         json.dump(json_data, result)
 
 

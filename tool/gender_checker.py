@@ -5,7 +5,7 @@ import csv
 import os
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-GENDER_FILE = ROOT_DIR + "\\data\\gender_markers.csv"
+GENDER_FILE = ROOT_DIR + "\\additional_resources\\gender_markers.csv"
 
 
 def create_titles_and_gender_dictionary():

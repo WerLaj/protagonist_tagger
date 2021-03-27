@@ -1,38 +1,13 @@
 import json
-from spacy.scorer import Scorer
-from spacy.gold import GoldParse
-from flair.data import Sentence
-from flair.models import SequenceTagger
 from fuzzywuzzy import fuzz
 import spacy
 from spacy import displacy, gold
 from spacy.tokens import Span
-from file_and_directory_management import read_file_to_list, write_list_to_file, read_file, write_text_to_file, read_sentences_from_file
-import os
-import numpy as np
-from termcolor import colored
-from gender_checker import get_name_gender, get_personal_titles, create_titles_and_gender_dictionary
-from diminutives_recognizer import get_names_from_diminutive
-
 import itertools
 
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-CHARACTERS_DIRECTORY = ROOT_DIR + "\\data\\lists_of_characters\\"
-CHARACTERS_DESCRIPTIONS_DIRECTORY = ROOT_DIR + "\\data\\descriptions_of_characters\\"
-NOVELS_TEXT_DIRECTORY = ROOT_DIR + "\\data\\complete_literary_texts\\"
-TESTS_DIRECTORY = ROOT_DIR + "\\data\\testing_set\\"
-
-ADDITIONAL_CHARACTERS_DIRECTORY = ROOT_DIR + "\\data\\additional_testing_set\\lists_of_characters\\"
-ADDITIONAL_TESTS_DIRECTORY = ROOT_DIR + "\\data\\additional_testing_set\\testing_set\\"
-ADDITIONAL_NOVELS_TEXT_DIRECTORY = ROOT_DIR + "\\data\\additional_testing_set\\complete_literary_texts\\"
-
-RESULT_DOCS_DIRECTORY = ROOT_DIR + "\\results\\docs\\"
-RESULT_RATIOS_DIRECTORY = ROOT_DIR + "\\results\\ratios\\"
-RESULT_TESTS_DIRECTORY = ROOT_DIR + "\\results\\testing_set\\"
-RESULT_TRAINING_DATA_DIRECTORY = ROOT_DIR + "\\results\\annotated_novels\\"
-
-ADDITIONAL_RESULT_TESTS_DIRECTORY = ROOT_DIR + "\\results\\testing_set_2\\"
+from tool.file_and_directory_management import write_list_to_file
+from tool.gender_checker import get_name_gender, get_personal_titles, create_titles_and_gender_dictionary
+from tool.diminutives_recognizer import get_names_from_diminutive
 
 
 def prepare_list_for_ratios(characters):
@@ -45,33 +20,14 @@ def prepare_list_for_ratios(characters):
     return ratios
 
 
-def get_data_about_novel(title):
-    characters = read_file_to_list(CHARACTERS_DIRECTORY + title)
-    descriptions = read_file_to_list(CHARACTERS_DESCRIPTIONS_DIRECTORY + title)
-    return characters, descriptions
-
-
-def get_complete_data_about_novel(title):
-    characters = read_file_to_list(CHARACTERS_DIRECTORY + title)
-    novel_text = read_file(NOVELS_TEXT_DIRECTORY + title)
-    return characters, novel_text
-
-
-def get_test_data_for_novel(title):
-    characters = read_file_to_list(ADDITIONAL_CHARACTERS_DIRECTORY + title)
-    text = read_sentences_from_file(ADDITIONAL_TESTS_DIRECTORY + title)
-    return characters, text
-
-
 class NamesMatcher:
-    def __init__(self, partial_ratio_precision):
+    def __init__(self, partial_ratio_precision, model_path="en_core_web_sm"):
         self.personal_titles = get_personal_titles()
         self.titles_gender_dict = create_titles_and_gender_dictionary()
-        # self.nlp = spacy.load("en_core_web_sm")
-        self.nlp = spacy.load(ROOT_DIR + "\\results\\fine_tuning_ner\\common_names\\model")
+        self.nlp = spacy.load(model_path)
         self.partial_ratio_precision = partial_ratio_precision
 
-    def recognize_person_enities(self, text, characters):
+    def recognize_person_entities(self, text, characters):
         matches_table = prepare_list_for_ratios(characters)
         train_data = []
 
@@ -96,78 +52,43 @@ class NamesMatcher:
         train_data.append(dict)
 
         return matches_table, train_data, doc
-        ## --- otpion with separating sententences --- problem with displaying in displacy ---
-        # matches_table = prepare_list_for_ratios(characters)
-        # train_data = []
-        #
-        # doc = self.nlp(text)
-        # for sentence in doc.sents:
-        #     dict = {}
-        #     entities = []
-        #     doc_sentence = self.nlp(sentence.text)
-        #     for index, ent in enumerate(doc_sentence.ents):
-        #         if ent.label_ == "PERSON":
-        #             personal_title = self.recognize_personal_title(doc_sentence, index)
-        #             person = ent.text
-        #             row = self.find_match_for_person(person, personal_title, characters)
-        #             matches_table.append(row)
-        #             if row[1] is not None:
-        #                 label = "{" + row[1] + "}"
-        #                 span = Span(doc_sentence, ent.start, ent.end, label=label)
-        #                 doc_sentence.ents = [span if e == ent else e for e in doc_sentence.ents]
-        #                 entities.append([ent.start, ent.end, row[1]])
-        #
-        #     dict["content"] = sentence.text
-        #     dict["entities"] = entities
-        #     train_data.append(dict)
-        #
-        # return matches_table, train_data, doc
 
-    def match_names_for_text(self, title, filename=None, descriptions_variant=False, tests_variant=False, displacy_option=False, save_ratios=False, save_doc=True):
-        if descriptions_variant:
-            characters, text = get_data_about_novel(title)
-            text = text[0]
-        elif tests_variant:
-            characters, text = get_test_data_for_novel(title)
-        else:
-            characters, text = get_complete_data_about_novel(title)
-
+    def match_names_for_text(self, characters, text, results_dir, filename=None, tests_variant=False, displacy_option=False, save_ratios=False, save_doc=False):
         if tests_variant:
             train_data = []
             matches_table = prepare_list_for_ratios(characters)
             for sentence in text:
-                matches_table_row, data_for_sentence, _ = self.recognize_person_enities(sentence, characters)
+                matches_table_row, data_for_sentence, _ = self.recognize_person_entities(sentence, characters)
                 train_data.append(data_for_sentence[0])
                 matches_table.extend(matches_table_row[1:])
         else:
-            matches_table, train_data, doc = self.recognize_person_enities(text, characters)
+            matches_table, train_data, doc = self.recognize_person_entities(text, characters)
 
         if filename is not None:
             if save_doc:
                 json_data = gold.docs_to_json(doc)
-                with open(RESULT_DOCS_DIRECTORY + filename, 'w') as result:
+                with open(results_dir + "\\docs\\" + filename, 'w') as result:
                     json.dump(json_data, result)
 
             if save_ratios:
-                write_list_to_file(RESULT_RATIOS_DIRECTORY + filename, matches_table)
+                write_list_to_file(results_dir + "\\ratios\\" + filename, matches_table)
 
             if tests_variant:
-                with open(ADDITIONAL_RESULT_TESTS_DIRECTORY + filename, 'w', encoding='utf8') as result:
+                with open(results_dir + filename, 'w', encoding='utf8') as result:
                     json.dump(train_data, result, ensure_ascii=False)
             else:
-                with open(RESULT_TRAINING_DATA_DIRECTORY + filename, 'w') as result:
+                with open(results_dir + filename, 'w') as result:
                     json.dump(train_data, result)
 
         if displacy_option:
             displacy.serve(doc, style="ent")
 
-    def matcher_test(self, title, testing_string, filename=None, displacy_option=False):
-        characters, novel_text = get_complete_data_about_novel(title)
-        matches_table, train_data, doc = self.recognize_person_enities(testing_string, characters)
+    def matcher_test(self, characters, testing_string, results_dir, filename=None, displacy_option=False):
+        matches_table, train_data, doc = self.recognize_person_entities(testing_string, characters)
 
         if filename is not None:
-            write_list_to_file(ROOT_DIR + "\\results\\ratios\\" + filename + "_test", matches_table)
-            with open(ROOT_DIR + "\\results\\annotated_novels\\" + filename + "_test_spacy.json", 'w') as result:
+            write_list_to_file(results_dir + "\\ratios\\" + filename + "_test", matches_table)
+            with open(results_dir + filename + "_test_spacy.json", 'w') as result:
                 json.dump(train_data, result)
 
         if displacy_option:
@@ -207,7 +128,6 @@ class NamesMatcher:
         row.extend(row_ratios)
 
         return row
-
 
     def get_partial_ratio_for_all_permutations(self, potential_match, character_name):
         character_name_components = character_name.split()
@@ -263,40 +183,3 @@ class NamesMatcher:
                 personal_title = "the"
 
         return personal_title
-
-    # print("---Flair---")
-    #
-    # sentence = Sentence(elizabeth_bennet_desc)
-    # tagger = SequenceTagger.load('ner')
-    # tagger.predict(sentence)
-    #
-    # for entity in sentence.get_spans('ner'):
-    #     if entity.tag == "PER":
-    #         print(entity.text)
-    #
-    # print(fuzz.ratio("Lizzy", "Elizabeth"))
-    # print(fuzz.partial_ratio("Lizzy", "Elizabeth"))
-    #
-    # print("---Fitzwilliam Darcy description---")
-    # print("---SpacyNER + FuzzyWuzzy---")
-    #
-    # doc = nlp(darcy_desc)
-    #
-    # characters = []
-    #
-    # for ent in doc.ents:
-    #     if ent.label_ == "PERSON":
-    #         characters.append(ent.text)
-    #
-    # for character in characters:
-    #     print(str(character) + ", E: " + str(fuzz.partial_ratio(character, elizabeth_bennet)) + ", D: " + str(fuzz.partial_ratio(character,darcy)))
-    #
-    # print("---Flair---")
-    #
-    # sentence = Sentence(darcy_desc)
-    # tagger = SequenceTagger.load('ner')
-    # tagger.predict(sentence)
-    #
-    # for entity in sentence.get_spans('ner'):
-    #     if entity.tag == "PER":
-    #         print(entity.text)

@@ -1,31 +1,68 @@
-from file_and_directory_management import read_file_to_list
-import os
-from names_matcher import NamesMatcher
 from tabulate import tabulate
+import sys
 
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+from tool.names_matcher import NamesMatcher
+from tool.file_and_directory_management import read_file_to_list, read_file, read_sentences_from_file
 
 
-def test_matcher(title, testing_string, precision):
-    names_matcher = NamesMatcher(precision)
-    matches_table = names_matcher.matcher_test(title, testing_string, title, displacy_option=True)
+def get_complete_data_about_novel(title, characters_lists_dir_path, novels_texts_dir_path):
+    characters = read_file_to_list(characters_lists_dir_path + title)
+    novel_text = read_file(novels_texts_dir_path + title)
+    return characters, novel_text
+
+
+def get_test_data_for_novel(title, characters_lists_dir_path, testing_sets_dir_path):
+    characters = read_file_to_list(characters_lists_dir_path + title)
+    text = read_sentences_from_file(testing_sets_dir_path + title)
+    return characters, text
+
+
+def test_matcher(title, testing_string, precision, model_path, characters_lists_dir_path, novels_texts_dir_path):
+    characters, _ = get_complete_data_about_novel(title, characters_lists_dir_path, novels_texts_dir_path)
+
+    names_matcher = NamesMatcher(precision, model_path)
+    matches_table = names_matcher.matcher_test(characters, testing_string, title, displacy_option=True)
 
     return matches_table
 
 
-def run_matcher(precision):
-    names_matcher = NamesMatcher(precision)
-    titles = read_file_to_list(ROOT_DIR.replace("\\scripts", "") + "\\data\\additional_titles.txt")
+# titles_path - path to .txt file with titles of novels from which the sampled data are to be generated (titles should
+#       not contain any special characters and spaces should be replaced with "_", for example "Pride_andPrejudice")
+# precision - precision of approximate string matching; values in between [1,100] (recomended ~75)
+# test_variant - if True then separate sentences in testing set are considered and annotated separately; if False whole
+#       text given is annotated as a whole (without splitting to sentences)
+# model_path - path to a fine-tuned nlp spacy model to be loaded and used during named entity recognition process; if
+#       not the standard, pre-trained NER model is used
+# characters_lists_dir_path - directory of files containing lists of characters from corresponding novels (names of
+#       files should be the same as titles on the list from titles_path)
+# texts_dir_path - directory of files containing texts from corresponding novels to be annotated (names of
+#       files should be the same as titles on the list from titles_path)
+def run_matcher(titles_path, model_path, characters_lists_dir_path, texts_dir_path, results_dir, precision=75, tests_variant=True):
+    names_matcher = NamesMatcher(precision, model_path)
+    titles = read_file_to_list(titles_path)
     for title in titles:
-        matches_table = names_matcher.match_names_for_text(title, title, descriptions_variant=False, tests_variant=True,
-                                                           displacy_option=False, save_ratios=False, save_doc=False)
+        if tests_variant:
+            characters, text = get_test_data_for_novel(title, characters_lists_dir_path, texts_dir_path)
+        else:
+            characters, text = get_complete_data_about_novel(title, characters_lists_dir_path, texts_dir_path)
+        matches_table = names_matcher.match_names_for_text(characters,
+                                                           text,
+                                                           results_dir,
+                                                           title,
+                                                           tests_variant,
+                                                           save_ratios=True)
 
     print(tabulate(matches_table, tablefmt='orgtbl'))
 
 
-def main():
-    run_matcher(75)
+def main(titles_path, model_path, characters_lists_dir_path, texts_dir_path, results_dir):
+    run_matcher(titles_path, model_path, characters_lists_dir_path, texts_dir_path, results_dir)
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+
+# eg.
+# python -m tool.scripts.test_matcher_algorithm C:\Users\werka\Desktop\testing\small_set.txt C:\Users\werka\Deskto
+#   p\testing\fine_tuned_ner_model\ C:\Users\werka\Desktop\testing\small_set\ C:\Users\werka\Desktop\testing\test_small\
+#   C:\Users\werka\Desktop\testing\my_results\
