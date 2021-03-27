@@ -30,8 +30,8 @@ def prepare_training_data(titles_path, training_set_1_dir_path, training_set_2_p
 
 
 # model_output_dir - path to directory where fine-tuned NER model should be stored
-def fine_tune_ner(model_output_dir):
-    train_data = prepare_training_data()
+def fine_tune_ner(model_output_dir, titles_path, training_set_1_dir_path, training_set_2_path):
+    train_data = prepare_training_data(titles_path, training_set_1_dir_path, training_set_2_path)
     n_iter = 100
     nlp = spacy.load("en_core_web_sm")
 
