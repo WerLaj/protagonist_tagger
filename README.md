@@ -1,5 +1,3 @@
-![alt text here](protagonist_tagger_poster.png)
-
 # Protagonists' Catcher in Novels -- A Dataset and A Method
 Semantic annotation of long texts, such as novels, remains an open challenge in the field of Semantic Web (SW) and Natural Language Processing (NLP). Recognizing and identifying literary characters in full-text novels is the first step for a more detailed literary text analysis. This research investigates the problem of ontology population, i.e. recognizing people (especially main characters) in novels and annotating them. We prepared a tool -- **protagonistTagger** -- for this annotation and a dataset to test it. 
 
