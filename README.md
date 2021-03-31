@@ -18,6 +18,8 @@ The process of creating the corpus of annotated novels and the **protagonistTagg
 
 The **protagonistTagger** (fine-tuned NER + matching algorithm) is used to annotate more novels in order to create the corpus of annotated novels. 
 
+![alt text here](project_workflow.png)
+
 ## What can you find here
 This repository comprises three main parts:
 1. corpus of thirteen novels annotated with full names of protagonists (see *protagonist_tagger/annotated_corpus/*)
