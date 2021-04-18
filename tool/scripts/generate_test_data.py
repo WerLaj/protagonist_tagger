@@ -19,7 +19,3 @@ def main(titles_path, novels_texts_dir_path, number_of_sentences, generated_data
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4])
-
-# eg. of execution from protagonist_tagger directory
-#   python -m tool.scripts.generate_test_data C:\Users\werka\Desktop\testing\small_set.txt C:\Users\werka\Desktop\te
-#       sting\small_set\ 20 C:\Users\werka\Desktop\testing\results\

@@ -121,7 +121,3 @@ def main(titles_path, not_recognized_named_entities_person_file_path, novels_tex
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5])
-
-# eg.
-# python -m tool.scripts.ner_fine_tuning_set_preparation C:\Users\werka\Desktop\testing\small_set.txt C:\Users\wer
-#   ka\Desktop\testing\not_rec\ C:\Users\werka\Desktop\testing\small_set\ 3 C:\Users\werka\Desktop\testing\my_results\

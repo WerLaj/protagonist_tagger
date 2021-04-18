@@ -22,8 +22,3 @@ def main(titles_path, gold_standard_dir_path, testing_set_dir_path, stats_dir, p
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
-
-# eg.
-# python -m tool.scripts.compute_metrics C:\Users\werka\Desktop\testing\small_set.txt C:\Users\werka\Desktop\testi
-#   ng\test_small_names_gold_standard\ C:\Users\werka\Desktop\testing\annotated_test_small_names\ C:\Users\werka\Des
-#   ktop\testing\results\ True

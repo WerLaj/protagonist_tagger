@@ -113,8 +113,3 @@ def main(titles_path, characters_lists_dir_path, novels_texts_dir_path, sentence
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5])
-
-# eg.
-# python -m tool.scripts.ner_fine_tuning_with_common_names_set_preparation C:\Users\werka\Desktop\testing\small_se
-#   t.txt C:\Users\werka\Desktop\testing\characters\ C:\Users\werka\Desktop\testing\small_set\ 3 C:\Users\werka\Desktop\
-#   testing\my_results\

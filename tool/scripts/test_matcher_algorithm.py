@@ -61,8 +61,3 @@ def main(titles_path, model_path, characters_lists_dir_path, texts_dir_path, res
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
-
-# eg.
-# python -m tool.scripts.test_matcher_algorithm C:\Users\werka\Desktop\testing\small_set.txt C:\Users\werka\Deskto
-#   p\testing\fine_tuned_ner_model\ C:\Users\werka\Desktop\testing\small_set\ C:\Users\werka\Desktop\testing\test_small\
-#   C:\Users\werka\Desktop\testing\my_results\

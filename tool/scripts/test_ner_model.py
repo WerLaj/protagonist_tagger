@@ -78,8 +78,3 @@ def main(titles_path, names_gold_standard_dir_path, testing_data_dir_path, gener
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
-
-# eg.
-# python -m tool.scripts.ner_testing C:\Users\werka\Desktop\testing\small_set.txt C:\Users\werka\Desktop\testing\n
-#   ames_gold_standard\ C:\Users\werka\Desktop\testing\test_small\ C:\Users\werka\Desktop\testing\my_results\ C:\Users\
-#   werka\Desktop\testing\fine_tuned_ner_model
