@@ -52,5 +52,21 @@ Arguments should be separated with single space and given without any quotation 
 
 `$ python -m tool.scripts.generate_test_data C:\users\john_smith\desktop\titles.txt C:\users\john_smith\desktop\novels_texts\ 20 C:\users\john_smith\desktop\my_results\`
 
+## Prerequisites
+In order to successfully use the provided scripts the following requirements need to be fullfilled:
+- Python 3.6
+- PyYAML 5.3
+- gensim 3.8
+- numpy 1.18.2
+- pytorch.transformers 1.2
+- scikit-learn 0.22
+- scipy 1.4.1
+- spacy 2.2.4
+
+Additionally the following packages are used:
+- fuzzywuzzy 0.18 - https://pypi.org/project/fuzzywuzzy/
+- gender-guesser 0.4 - https://pypi.org/project/gender-guesser/
+- nickname-and-diminutive-names-lookup - https://github.com/carltonnorthern/nickname-and-diminutive-names-lookup
+
 ## More information
 More information about the prepared corpus, data sets and the tool itself can be found in the presentation and the paper located in this repository.
