@@ -31,11 +31,29 @@ def read_file_to_list(path):
     return strings
 
 
+def read_file_to_list_polish(path):
+    file = open_path(path, "r")
+    lines = file.readlines()
+    strings = []
+
+    for line in lines:
+        strings.append(line.rstrip())
+
+    return strings
+
+
 def read_file(path):
     file = open_path(path, "r")
     text = file.readlines()
 
     return text[0].encode('ascii', 'ignore').decode("utf-8")
+
+
+def read_file_polish(path):
+    file = open_path(path, "r")
+    text = file.readlines()
+
+    return text[0]
 
 
 def read_sentences_from_file(path):

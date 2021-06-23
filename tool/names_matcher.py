@@ -1,7 +1,7 @@
 import json
 from fuzzywuzzy import fuzz
 import spacy
-from spacy import displacy, gold
+from spacy import displacy
 from spacy.tokens import Span
 import itertools
 
@@ -35,7 +35,7 @@ class NamesMatcher:
         dict = {}
         entities = []
         for index, ent in enumerate(doc.ents):
-            if ent.label_ == "PERSON":
+            if ent.label_ == "PERSON" or ent.label_ == 'persName':
                 personal_title = self.recognize_personal_title(doc, index)
                 person = ent.text
                 row = self.find_match_for_person(person, personal_title, characters)

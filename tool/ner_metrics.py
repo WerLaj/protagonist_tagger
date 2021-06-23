@@ -39,6 +39,38 @@ def organize_entities(entities_gold, entities_matcher):
     return gold, matcher
 
 
+def organize_entities_news(entities_gold, entities_matcher):
+    gold_temp_id_0 = list(entity[0] for entity in entities_gold)
+    entities_matcher_id_0 = list(entity[0] for entity in entities_matcher)
+    gold_temp_id_1 = list(entity[1] for entity in entities_gold)
+    entities_matcher_id_1 = list(entity[1] for entity in entities_matcher)
+
+    for index in range(0, len(entities_gold) + 5):
+        if index < len(entities_gold) - 1:
+            if entities_gold[index] != entities_matcher[index]:
+                if entities_gold[index][0] not in entities_matcher_id_0 and entities_gold[index][1] not in entities_matcher_id_1:
+                    entities_matcher.insert(index, [0,0,""])
+
+                elif entities_matcher[index][0] not in gold_temp_id_0 and entities_matcher[index][1] not in gold_temp_id_1:
+                    entities_gold.insert(index, [0,0,""])
+
+                elif (entities_matcher[index][0] in gold_temp_id_0 and entities_matcher[index][1] not in gold_temp_id_1) and (entities_matcher[index + 1][0] not in gold_temp_id_0 and entities_matcher[index + 1][1] in gold_temp_id_1):
+                    entities_gold.insert(index, [0, 0, ""])
+
+    gold = list(entity[2] for entity in entities_gold)
+    matcher = list(entity[2] for entity in entities_matcher)
+
+    missing_ents = np.abs(len(gold) - len(matcher))
+    filler = [''] * missing_ents
+
+    if len(gold) > len(matcher):
+        matcher.extend(filler)
+    else:
+        gold.extend(filler)
+
+    return gold, matcher
+
+
 def calculate_metrics_ner(gold, matcher):
     characters = list(dict.fromkeys(gold + matcher))
     characters.remove('')
@@ -54,7 +86,7 @@ def calculate_metrics_ner(gold, matcher):
 
 def calculate_metrics(gold, matcher):
     characters = list(dict.fromkeys(gold + matcher))
-    characters.remove('')
+    # characters.remove('')
 
     result = precision_recall_fscore_support(np.array(gold), np.array(matcher), labels=(characters), average='weighted')
 
@@ -64,11 +96,26 @@ def calculate_metrics(gold, matcher):
 
 
 def create_and_save_stats(title, gold_standard_path, result_path, stats_path, ner=False):
-    # entities_gold, _ = data_from_json(gold_standard_path + title + ".json")
-    entities_gold, _ = data_from_json(gold_standard_path + title)
+    entities_gold, _ = data_from_json(gold_standard_path + title + ".json")
+    # entities_gold, _ = data_from_json(gold_standard_path + title)
     entities_matcher, _ = data_from_json(result_path + title)
 
     gold, matcher = organize_entities(entities_gold, entities_matcher)
+
+    if ner is True:
+        metrics = calculate_metrics_ner(gold, matcher)
+    else:
+        metrics = calculate_metrics(gold, matcher)
+
+    save_to_pickle(title, metrics, stats_path)
+
+
+def create_and_save_stats_news(title, gold_standard_path, result_path, stats_path, ner=False):
+    entities_gold, _ = data_from_json(gold_standard_path + title + ".json")
+    # entities_gold, _ = data_from_json(gold_standard_path + title)
+    entities_matcher, _ = data_from_json(result_path + title)
+
+    gold, matcher = organize_entities_news(entities_gold[0], entities_matcher[0])
 
     if ner is True:
         metrics = calculate_metrics_ner(gold, matcher)
@@ -88,6 +135,28 @@ def create_overall_stats(titles, gold_standard_path, result_path, stats_path, ne
         entities_matcher, _ = data_from_json(result_path + title)
 
         gold, matcher = organize_entities(entities_gold, entities_matcher)
+        gold_overall.extend(gold)
+        matcher_overall.extend(matcher)
+
+    if ner is True:
+        metrics = calculate_metrics_ner(gold_overall, matcher_overall)
+    else:
+        # metrics = calculate_metrics(gold_overall, matcher_overall, overall=True)
+        metrics = calculate_metrics(gold_overall, matcher_overall)
+    save_to_pickle("overall_metrics", metrics, stats_path)
+    return metrics
+
+
+def create_overall_stats_news(file_base_name, num_of_news, gold_standard_path, result_path, stats_path, ner=False):
+    gold_overall = []
+    matcher_overall = []
+
+    for i in range(1, num_of_news + 1):
+        entities_gold, _ = data_from_json(gold_standard_path + file_base_name + str(i) + ".json")
+        # entities_gold, _ = data_from_json(gold_standard_path + file_base_name + str(i))
+        entities_matcher, _ = data_from_json(result_path + file_base_name + str(i))
+
+        gold, matcher = organize_entities_news(entities_gold[0], entities_matcher[0])
         gold_overall.extend(gold)
         matcher_overall.extend(matcher)
 
@@ -133,6 +202,23 @@ def characters_tags_metrics(titles_path, gold_standard_path, result_path, stats_
         metrics_table.append(metrics_title)
 
     metrics = create_overall_stats(titles, gold_standard_path, result_path, stats_path, ner=False)
+    metrics_table.append(["*** overall results ***"].__add__([m for m in metrics]))
+    print(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex'))
+
+
+def characters_tags_metrics_news(file_base_name, num_of_news, gold_standard_path, result_path, stats_path):
+    for i in range(1, num_of_news + 1):
+        create_and_save_stats_news(file_base_name + str(i), gold_standard_path, result_path, stats_path, ner=False)
+
+    metrics_table = []
+    headers = ["News file", "precision", "recall", "F-measure"]
+
+    for i in range(1, num_of_news + 1):
+        metrics = load_from_pickle(file_base_name + str(i), stats_path)
+        metrics_title = [file_base_name + str(i)].__add__([m for m in metrics])
+        metrics_table.append(metrics_title)
+
+    metrics = create_overall_stats_news(file_base_name, num_of_news, gold_standard_path, result_path, stats_path, ner=False)
     metrics_table.append(["*** overall results ***"].__add__([m for m in metrics]))
     print(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex'))
 
