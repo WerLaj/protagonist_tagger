@@ -73,7 +73,7 @@ def organize_entities_news(entities_gold, entities_matcher):
 
 def calculate_metrics_ner(gold, matcher):
     characters = list(dict.fromkeys(gold + matcher))
-    characters.remove('')
+    # characters.remove('')
 
     result = precision_recall_fscore_support(np.array(gold), np.array(matcher), labels=(characters))
 
@@ -239,3 +239,21 @@ def ner_metrics(titles_path, gold_standard_path, result_path, stats_path):
     metrics = create_overall_stats(titles, gold_standard_path, result_path, stats_path, ner=True)
     metrics_table.append(["*** overall results ***"].__add__([m[0] for m in metrics]))
     print(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex'))
+
+
+def ner_metrics_news(file_base_name, num_of_news, gold_standard_path, result_path, stats_path):
+    for i in range(1, num_of_news + 1):
+        create_and_save_stats_news(file_base_name + str(i), gold_standard_path, result_path, stats_path, ner=True)
+
+    metrics_table = []
+    headers = ["Novel title", "precision", "recall", "F-measure", "support"]
+
+    for i in range(1, num_of_news + 1):
+        metrics = load_from_pickle(file_base_name + str(i), stats_path)
+        metrics_title = [file_base_name + str(i)].__add__([m for m in metrics])
+        metrics_table.append(metrics_title)
+
+    metrics = create_overall_stats_news(file_base_name, num_of_news, gold_standard_path, result_path, stats_path, ner=True)
+    metrics_table.append(["*** overall results ***"].__add__([m[0] for m in metrics]))
+    print(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex'))
+

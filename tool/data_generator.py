@@ -81,6 +81,27 @@ def spacy_format_to_json(path, data, title):
         json.dump(json_data, result)
 
 
+def spacy_format_to_json_news(path, data, title):
+    eval_data = list(eval(data))
+    json_data = []
+
+    for sentence in eval_data:
+        dict = {"content": sentence[0], "entities": sentence[1]['entities']}
+        json_data.append(dict)
+
+    path = path + title + ".json"
+
+    if not os.path.exists(os.path.dirname(path)):
+        try:
+            os.makedirs(os.path.dirname(path))
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                raise
+
+    with open(path, 'w+', encoding="utf-8") as result:
+        json.dump(json_data, result, ensure_ascii=False)
+
+
 def data_from_json(path):
     with open(path, encoding='utf-8') as train_data:
         train = json.load(train_data)

@@ -1,0 +1,81 @@
+import sys
+import re
+import spacy
+import os
+import json
+from spacy.tokens import Span
+from tool.file_and_directory_management import read_file_to_list, read_sentences_from_file
+from tool.data_generator import json_to_spacy_train_data, spacy_format_to_json_news
+
+
+def generalize_tags(data):
+    return re.sub(r"([0-9]+,\s[0-9]+,\s')[a-zA-Z\s\.àâäèéêëîïłąćężżśńôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇŁŃĄŚĆŻŻŹĘ]+", r"\1PERSON", str(data))
+
+
+def generate_generalized_data(news_files_base_name, num_of_news, names_gold_standard_dir_path, generated_data_dir):
+    for i in range(1, num_of_news + 1):
+        test_data = json_to_spacy_train_data(names_gold_standard_dir_path + news_files_base_name + str(i) + ".json")
+        generalized_test_data = generalize_tags(test_data)
+        spacy_format_to_json_news(generated_data_dir + "generated_gold_standard\\", generalized_test_data, news_files_base_name + str(i))
+
+
+def test_ner(data, model_dir=None):
+    if model_dir is not None:
+        nlp = spacy.load(model_dir)
+    else:
+        nlp = spacy.load("pl_core_news_sm")
+    result = []
+    for sentence in data:
+        doc = nlp(sentence)
+        dict = {}
+        entities = []
+        for index, ent in enumerate(doc.ents):
+            if ent.label_ == "PERSON" or ent.label_ == 'persName':
+                span = Span(doc, ent.start, ent.end, label="PERSON")
+                doc.ents = [span if e == ent else e for e in doc.ents]
+                entities.append([ent.start_char, ent.end_char, "PERSON"])
+
+        dict["content"] = doc.text
+        dict["entities"] = entities
+        result.append(dict)
+
+    return result
+
+
+def main(news_files_base_name, num_of_news, names_gold_standard_dir_path, testing_data_dir_path, generated_data_dir, ner_model_dir_path=None):
+    generate_generalized_data(news_files_base_name, num_of_news, names_gold_standard_dir_path, generated_data_dir)
+
+    for i in range(1, num_of_news + 1):
+        test_data = read_sentences_from_file(testing_data_dir_path + news_files_base_name + str(i))
+        ner_result = test_ner(test_data, ner_model_dir_path)
+
+        path = generated_data_dir + "ner_model_annotated\\" + news_files_base_name + str(i)
+
+        if not os.path.exists(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
+
+        with open(path, 'w+', encoding="utf-8") as result:
+            json.dump(ner_result, result, ensure_ascii=False)
+
+
+def count_sentences_in_dataset(news_files_base_name, num_of_news, data_dir_path):
+    nlp = spacy.load("pl_core_news_sm")
+    num_of_sentences = 0
+    for i in range(1, num_of_news + 1):
+        test_data = read_sentences_from_file(data_dir_path + news_files_base_name + str(i))
+        doc = nlp(test_data[0])
+        for sentence in enumerate(doc.sents):
+            print(sentence)
+            num_of_sentences = num_of_sentences + 1
+
+    return num_of_sentences
+
+
+if __name__ == "__main__":
+    dir_with_news = "C:\\Users\\werka\\Desktop\\REFSA\\ISWC paper\\github\\protagonist_tagger\\data\\news_corrected\\"
+    news_files_base_name = "doc"
+    number_of_news = 50
+    ner_model = "pl_core_news_sm"
+    main(news_files_base_name, number_of_news, dir_with_news + "gold_standard\\", dir_with_news + "plain_news\\", dir_with_news + "gold_standard_ner", ner_model)
+    num_of_sentences = count_sentences_in_dataset(news_files_base_name, number_of_news, dir_with_news + "plain_news\\")
+    print("Number of sentences in the dataset: " + str(num_of_sentences))
